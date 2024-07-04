@@ -4,21 +4,31 @@ const ctx = canvas.getContext('2d');
 const canvasWidth = canvas.width;
 const canvasHeight = canvas.height;
 
+// Load images
+const spriteSheet = new Image();
+spriteSheet.src = 'data/100878.png'; // Ensure this path is correct
+
+// Game elements
 const player = {
     x: 50,
-    y: canvasHeight - 60,
-    width: 40,
-    height: 40,
+    y: canvasHeight - 80, // Adjusted to place the player correctly
+    width: 128, // Adjusted to match the sprite sheet frame size
+    height: 128, // Adjusted to match the sprite sheet frame size
     speed: 5,
     dx: 0,
     dy: 0,
-    jumpHeight: -20, // Increased jump height
+    jumpHeight: -20,
     gravity: 1,
     isJumping: false,
     isOnGround: true,
     lives: 3,
     speedBoost: false,
-    invincible: false
+    invincible: false,
+    frameIndex: 2, // Frame index for animation
+    frameCount: 1, // Total number of frames for the walking animation (adjust as necessary)
+    frameWidth: 110, // Width of each frame in the sprite sheet
+    frameHeight: 75, // Height of each frame in the sprite sheet
+    animationRow: 1 // The row in the sprite sheet that contains the walking animation
 };
 
 const kong = {
@@ -47,14 +57,12 @@ const powerUpInterval = 10000;
 let lastPowerUpTime = 0;
 
 const levels = [
-    // Level 1
     [
         { x: 0, y: canvasHeight - 20, width: canvasWidth, height: 20 },
         { x: 150, y: 400, width: 500, height: 20 },
         { x: 0, y: 300, width: 300, height: 20 },
         { x: 500, y: 200, width: 300, height: 20 }
     ],
-    // Level 2
     [
         { x: 0, y: canvasHeight - 20, width: canvasWidth, height: 20 },
         { x: 100, y: 450, width: 600, height: 20 },
@@ -70,9 +78,20 @@ const ladders = [
     { x: 600, y: 200, width: 20, height: 200 }
 ];
 
+// Draw functions
 function drawPlayer() {
-    ctx.fillStyle = player.invincible ? 'purple' : 'blue';
-    ctx.fillRect(player.x, player.y, player.width, player.height);
+    const { frameIndex, frameCount, frameWidth, frameHeight, animationRow } = player;
+    const frameX = (frameIndex % frameCount) * frameWidth;
+    const frameY = (animationRow - 1) * frameHeight;
+
+    console.log(`Drawing frame at: frameX=${frameX}, frameY=${frameY}, frameWidth=${frameWidth}, frameHeight=${frameHeight}`);
+
+    ctx.drawImage(spriteSheet, frameX, frameY, frameWidth, frameHeight, player.x, player.y, player.width, player.height);
+
+    // Update frame index for animation
+    if (player.dx !== 0) { // Only animate when moving
+        player.frameIndex = (player.frameIndex + 1) % player.frameCount;
+    }
 }
 
 function drawKong() {
@@ -100,8 +119,8 @@ function drawLadders() {
 }
 
 function drawBarrels() {
-    ctx.fillStyle = 'orange';
     barrels.forEach(barrel => {
+        ctx.fillStyle = 'orange';
         ctx.beginPath();
         ctx.arc(barrel.x, barrel.y, barrel.radius, 0, Math.PI * 2);
         ctx.fill();
