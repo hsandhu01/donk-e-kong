@@ -6,7 +6,15 @@ const canvasHeight = canvas.height;
 
 // Load images
 const spriteSheet = new Image();
-spriteSheet.src = 'data/100878.png'; // Ensure this path is correct
+spriteSheet.src = 'data/100878.png'; 
+
+const powerUpImages = {
+    speed: new Image(),
+    invincible: new Image()
+};
+
+powerUpImages.speed.src = 'data/speed.png'; 
+powerUpImages.invincible.src = 'data/invincible.png'; 
 
 // Game elements
 const player = {
@@ -58,6 +66,7 @@ const powerUpInterval = 10000;
 let lastPowerUpTime = 0;
 
 const levels = [
+    // Initial levels...
     [
         { x: 0, y: canvasHeight - 20, width: canvasWidth, height: 20 },
         { x: 150, y: 400, width: 500, height: 20 },
@@ -119,6 +128,57 @@ const levels = [
         { x: 0, y: 300, width: 200, height: 20 },
         { x: 400, y: 200, width: 400, height: 20 },
         { x: 100, y: 100, width: 600, height: 20 }
+    ],
+    [
+        { x: 0, y: canvasHeight - 20, width: canvasWidth, height: 20 },
+        { x: 150, y: 450, width: 600, height: 20 },
+        { x: 0, y: 350, width: 400, height: 20 },
+        { x: 450, y: 250, width: 350, height: 20 },
+        { x: 100, y: 150, width: 600, height: 20 },
+        { x: 200, y: 50, width: 400, height: 20 }
+    ],
+    // Additional levels
+    [
+        { x: 0, y: canvasHeight - 20, width: canvasWidth, height: 20 },
+        { x: 200, y: 400, width: 600, height: 20 },
+        { x: 50, y: 300, width: 400, height: 20 },
+        { x: 450, y: 200, width: 500, height: 20 },
+        { x: 100, y: 100, width: 700, height: 20 }
+    ],
+    [
+        { x: 0, y: canvasHeight - 20, width: canvasWidth, height: 20 },
+        { x: 100, y: 450, width: 600, height: 20 },
+        { x: 300, y: 350, width: 400, height: 20 },
+        { x: 0, y: 250, width: 500, height: 20 },
+        { x: 200, y: 150, width: 400, height: 20 }
+    ],
+    [
+        { x: 0, y: canvasHeight - 20, width: canvasWidth, height: 20 },
+        { x: 200, y: 400, width: 500, height: 20 },
+        { x: 100, y: 300, width: 300, height: 20 },
+        { x: 400, y: 200, width: 600, height: 20 },
+        { x: 50, y: 100, width: 700, height: 20 }
+    ],
+    [
+        { x: 0, y: canvasHeight - 20, width: canvasWidth, height: 20 },
+        { x: 250, y: 450, width: 500, height: 20 },
+        { x: 0, y: 350, width: 600, height: 20 },
+        { x: 350, y: 250, width: 500, height: 20 },
+        { x: 100, y: 150, width: 400, height: 20 }
+    ],
+    [
+        { x: 0, y: canvasHeight - 20, width: canvasWidth, height: 20 },
+        { x: 150, y: 400, width: 600, height: 20 },
+        { x: 300, y: 300, width: 400, height: 20 },
+        { x: 50, y: 200, width: 500, height: 20 },
+        { x: 200, y: 100, width: 600, height: 20 }
+    ],
+    [
+        { x: 0, y: canvasHeight - 20, width: canvasWidth, height: 20 },
+        { x: 100, y: 450, width: 600, height: 20 },
+        { x: 250, y: 350, width: 500, height: 20 },
+        { x: 50, y: 250, width: 400, height: 20 },
+        { x: 150, y: 150, width: 600, height: 20 }
     ]
 ];
 
@@ -177,14 +237,17 @@ function drawBarrels() {
     });
 }
 
+// Draw power-ups with images
 function drawPowerUps() {
     powerUps.forEach(powerUp => {
+        let image;
         if (powerUp.type === 'speed') {
-            ctx.fillStyle = 'cyan';
+            image = powerUpImages.speed;
         } else if (powerUp.type === 'invincible') {
-            ctx.fillStyle = 'gold';
+            image = powerUpImages.invincible;
         }
-        ctx.fillRect(powerUp.x, powerUp.y, powerUp.width, powerUp.height);
+
+        ctx.drawImage(image, powerUp.x, powerUp.y, powerUp.width, powerUp.height);
     });
 }
 
@@ -326,6 +389,7 @@ function createPowerUp() {
     powerUps.push(powerUp);
 }
 
+// Update power-ups to include their special effects
 function updatePowerUps() {
     powerUps.forEach(powerUp => {
         // Check for collisions with player
@@ -458,4 +522,3 @@ document.addEventListener('keyup', (e) => {
 });
 
 loop();
-
