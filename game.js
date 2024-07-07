@@ -6,15 +6,27 @@ const canvasHeight = canvas.height;
 
 // Load images
 const spriteSheet = new Image();
-spriteSheet.src = 'data/100878.png'; 
+spriteSheet.src = 'data/100878.png'; // Ensure this path is correct
 
 const powerUpImages = {
     speed: new Image(),
     invincible: new Image()
 };
 
-powerUpImages.speed.src = 'data/speed.png'; 
-powerUpImages.invincible.src = 'data/invincible.png'; 
+powerUpImages.speed.src = 'data/speed.png'; // Update with the actual path to the speed power-up image
+powerUpImages.invincible.src = 'data/invincible.png'; // Update with the actual path to the invincibility power-up image
+
+const kongImage = new Image();
+kongImage.src = 'data/kong.png'; // Update with the actual path to the new Kong image
+
+const redSquareReplacementImage = new Image();
+redSquareReplacementImage.src = 'data/barrel.png'; // Update with the actual path to the new red square replacement image
+
+const ladderImage = new Image();
+ladderImage.src = 'data/ladder.png'; // Update with the actual path to the ladder image
+
+const grassImage = new Image();
+grassImage.src = 'data/grass.png'; // Update with the actual path to the grass image
 
 // Game elements
 const player = {
@@ -204,9 +216,9 @@ function drawPlayer() {
     }
 }
 
+// Draw Kong with the new image
 function drawKong() {
-    ctx.fillStyle = 'brown';
-    ctx.fillRect(kong.x, kong.y, kong.width, kong.height);
+    ctx.drawImage(kongImage, kong.x, kong.y, kong.width, kong.height);
 }
 
 function drawCaptive() {
@@ -215,25 +227,20 @@ function drawCaptive() {
 }
 
 function drawPlatforms() {
-    ctx.fillStyle = 'green';
     platforms.forEach(platform => {
-        ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
+        ctx.drawImage(grassImage, platform.x, platform.y, platform.width, platform.height);
     });
 }
 
 function drawLadders() {
-    ctx.fillStyle = 'yellow';
     ladders.forEach(ladder => {
-        ctx.fillRect(ladder.x, ladder.y, ladder.width, ladder.height);
+        ctx.drawImage(ladderImage, ladder.x, ladder.y, ladder.width, ladder.height);
     });
 }
 
 function drawBarrels() {
     barrels.forEach(barrel => {
-        ctx.fillStyle = 'orange';
-        ctx.beginPath();
-        ctx.arc(barrel.x, barrel.y, barrel.radius, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.drawImage(redSquareReplacementImage, barrel.x - barrel.radius, barrel.y - barrel.radius, barrel.radius * 2, barrel.radius * 2);
     });
 }
 
@@ -522,3 +529,4 @@ document.addEventListener('keyup', (e) => {
 });
 
 loop();
+
