@@ -21,6 +21,7 @@ const player = {
     gravity: 1,
     isJumping: false,
     isOnGround: true,
+    isOnLadder: false,
     lives: 3,
     speedBoost: false,
     invincible: false,
@@ -69,6 +70,55 @@ const levels = [
         { x: 0, y: 350, width: 400, height: 20 },
         { x: 450, y: 250, width: 350, height: 20 },
         { x: 100, y: 150, width: 600, height: 20 }
+    ],
+    [
+        { x: 0, y: canvasHeight - 20, width: canvasWidth, height: 20 },
+        { x: 200, y: 400, width: 400, height: 20 },
+        { x: 0, y: 300, width: 200, height: 20 },
+        { x: 400, y: 200, width: 400, height: 20 },
+        { x: 100, y: 100, width: 600, height: 20 }
+    ],
+    [
+        { x: 0, y: canvasHeight - 20, width: canvasWidth, height: 20 },
+        { x: 250, y: 450, width: 400, height: 20 },
+        { x: 50, y: 350, width: 300, height: 20 },
+        { x: 500, y: 250, width: 300, height: 20 },
+        { x: 150, y: 150, width: 500, height: 20 }
+    ],
+    [
+        { x: 0, y: canvasHeight - 20, width: canvasWidth, height: 20 },
+        { x: 150, y: 400, width: 500, height: 20 },
+        { x: 300, y: 300, width: 400, height: 20 },
+        { x: 100, y: 200, width: 300, height: 20 },
+        { x: 400, y: 100, width: 300, height: 20 }
+    ],
+    [
+        { x: 0, y: canvasHeight - 20, width: canvasWidth, height: 20 },
+        { x: 100, y: 450, width: 400, height: 20 },
+        { x: 200, y: 350, width: 400, height: 20 },
+        { x: 0, y: 250, width: 300, height: 20 },
+        { x: 300, y: 150, width: 500, height: 20 }
+    ],
+    [
+        { x: 0, y: canvasHeight - 20, width: canvasWidth, height: 20 },
+        { x: 200, y: 450, width: 500, height: 20 },
+        { x: 50, y: 350, width: 400, height: 20 },
+        { x: 450, y: 250, width: 300, height: 20 },
+        { x: 100, y: 150, width: 600, height: 20 }
+    ],
+    [
+        { x: 0, y: canvasHeight - 20, width: canvasWidth, height: 20 },
+        { x: 250, y: 450, width: 400, height: 20 },
+        { x: 0, y: 350, width: 300, height: 20 },
+        { x: 500, y: 250, width: 300, height: 20 },
+        { x: 150, y: 150, width: 500, height: 20 }
+    ],
+    [
+        { x: 0, y: canvasHeight - 20, width: canvasWidth, height: 20 },
+        { x: 200, y: 400, width: 500, height: 20 },
+        { x: 0, y: 300, width: 200, height: 20 },
+        { x: 400, y: 200, width: 400, height: 20 },
+        { x: 100, y: 100, width: 600, height: 20 }
     ]
 ];
 
@@ -89,7 +139,7 @@ function drawPlayer() {
     ctx.drawImage(spriteSheet, frameX, frameY, frameWidth, frameHeight, player.x, player.y, player.width, player.height);
 
     // Update frame index for animation
-    if (player.dx !== 0) { // Only animate when moving
+    if (player.dx !== 0 || player.dy !== 0) { // Only animate when moving
         player.frameIndex = (player.frameIndex + 1) % player.frameCount;
     }
 }
@@ -161,20 +211,36 @@ function updatePlayer() {
     player.y += player.dy;
 
     // Apply gravity
-    if (!player.isOnGround) {
+    if (!player.isOnGround && !player.isOnLadder) {
         player.dy += player.gravity;
     }
 
     // Check for collisions with platforms
-    player.isOnGround = false;
+    let isOnPlatform = false;
     platforms.forEach(platform => {
         if (player.x < platform.x + platform.width &&
             player.x + player.width > platform.x &&
-            player.y < platform.y + platform.height &&
-            player.y + player.height > platform.y) {
-                player.isOnGround = true;
+            player.y + player.height <= platform.y + player.dy &&
+            player.y + player.height >= platform.y) {
+                isOnPlatform = true;
                 player.dy = 0;
                 player.y = platform.y - player.height;
+        }
+    });
+
+    player.isOnGround = isOnPlatform;
+
+    // Check for collisions with ladders
+    player.isOnLadder = false;
+    ladders.forEach(ladder => {
+        if (player.x < ladder.x + ladder.width &&
+            player.x + player.width > ladder.x &&
+            player.y + player.height > ladder.y &&
+            player.y < ladder.y + ladder.height) {
+                player.isOnLadder = true;
+                if (player.dy !== 0) {
+                    player.isOnGround = true; // Allow the player to stand on the ladder
+                }
         }
     });
 
@@ -343,12 +409,30 @@ function moveLeft() {
     player.dx = player.speedBoost ? -player.speed * 2 : -player.speed;
 }
 
-function stop() {
+function moveUp() {
+    if (player.isOnLadder) {
+        player.dy = -player.speed;
+    }
+}
+
+function moveDown() {
+    if (player.isOnLadder) {
+        player.dy = player.speed;
+    }
+}
+
+function stopHorizontal() {
     player.dx = 0;
 }
 
+function stopVertical() {
+    if (player.isOnLadder) {
+        player.dy = 0;
+    }
+}
+
 function jump() {
-    if (player.isOnGround) {
+    if (player.isOnGround && !player.isOnLadder) {
         player.dy = player.jumpHeight;
         player.isOnGround = false;
     }
@@ -357,12 +441,21 @@ function jump() {
 document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowRight' || e.key === 'd') moveRight();
     if (e.key === 'ArrowLeft' || e.key === 'a') moveLeft();
-    if (e.key === 'ArrowUp' || e.key === 'w') jump();
+    if (e.key === 'ArrowUp' || e.key === 'w') {
+        if (player.isOnLadder) {
+            moveUp();
+        } else {
+            jump();
+        }
+    }
+    if (e.key === 'ArrowDown' || e.key === 's') moveDown();
 });
 
 document.addEventListener('keyup', (e) => {
-    if (e.key === 'ArrowRight' || e.key === 'd') stop();
-    if (e.key === 'ArrowLeft' || e.key === 'a') stop();
+    if (e.key === 'ArrowRight' || e.key === 'd') stopHorizontal();
+    if (e.key === 'ArrowLeft' || e.key === 'a') stopHorizontal();
+    if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'ArrowDown' || e.key === 's') stopVertical();
 });
 
 loop();
+
