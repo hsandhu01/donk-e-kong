@@ -226,17 +226,14 @@ function drawCaptive() {
     ctx.fillRect(captive.x, captive.y, captive.width, captive.height);
 }
 
-// Draw red square with the new image
-function drawRedSquare() {
-    // ctx.drawImage(redSquareReplacementImage, redSquare.x, redSquare.y, redSquare.width, redSquare.height);
-}
-
+// Draw platforms with grass image
 function drawPlatforms() {
     platforms.forEach(platform => {
         ctx.drawImage(grassImage, platform.x, platform.y, platform.width, platform.height);
     });
 }
 
+// Draw ladders with ladder image
 function drawLadders() {
     ladders.forEach(ladder => {
         ctx.drawImage(ladderImage, ladder.x, ladder.y, ladder.width, ladder.height);
@@ -426,7 +423,6 @@ function draw() {
     drawPlayer();
     drawKong();
     drawCaptive();
-    // drawRedSquare(); // Remove the red square
     drawPlatforms();
     drawLadders();
     drawBarrels();
@@ -532,32 +528,6 @@ document.addEventListener('keyup', (e) => {
     if (e.key === 'ArrowRight' || e.key === 'd') stopHorizontal();
     if (e.key === 'ArrowLeft' || e.key === 'a') stopHorizontal();
     if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'ArrowDown' || e.key === 's') stopVertical();
-});
-
-// Add touch event listeners for mobile devices
-document.addEventListener('touchstart', (e) => {
-    const touch = e.touches[0];
-    const touchX = touch.clientX;
-    const touchY = touch.clientY;
-
-    // Assuming touch controls are divided into left and right halves of the screen
-    if (touchX < canvasWidth / 2) {
-        moveLeft();
-    } else {
-        moveRight();
-    }
-
-    // Assuming touch controls are divided into top and bottom halves for jumping
-    if (touchY < canvasHeight / 2) {
-        jump();
-    } else {
-        moveDown();
-    }
-});
-
-document.addEventListener('touchend', () => {
-    stopHorizontal();
-    stopVertical();
 });
 
 loop();
