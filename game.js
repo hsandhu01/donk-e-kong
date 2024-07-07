@@ -206,8 +206,6 @@ function drawPlayer() {
     const frameX = (frameIndex % frameCount) * frameWidth;
     const frameY = (animationRow - 1) * frameHeight;
 
-    console.log(`Drawing frame at: frameX=${frameX}, frameY=${frameY}, frameWidth=${frameWidth}, frameHeight=${frameHeight}`);
-
     ctx.drawImage(spriteSheet, frameX, frameY, frameWidth, frameHeight, player.x, player.y, player.width, player.height);
 
     // Update frame index for animation
@@ -226,14 +224,12 @@ function drawCaptive() {
     ctx.fillRect(captive.x, captive.y, captive.width, captive.height);
 }
 
-// Draw platforms with grass image
 function drawPlatforms() {
     platforms.forEach(platform => {
         ctx.drawImage(grassImage, platform.x, platform.y, platform.width, platform.height);
     });
 }
 
-// Draw ladders with ladder image
 function drawLadders() {
     ladders.forEach(ladder => {
         ctx.drawImage(ladderImage, ladder.x, ladder.y, ladder.width, ladder.height);
@@ -242,7 +238,7 @@ function drawLadders() {
 
 function drawBarrels() {
     barrels.forEach(barrel => {
-        ctx.drawImage(barrelImage, barrel.x - barrel.radius, barrel.y - barrel.radius, barrel.radius * 2, barrel.radius * 2);
+        ctx.drawImage(barrelImage, barrel.x, barrel.y, barrel.radius * 2, barrel.radius * 2);
     });
 }
 
@@ -294,9 +290,9 @@ function updatePlayer() {
             player.x + player.width > platform.x &&
             player.y + player.height <= platform.y + player.dy &&
             player.y + player.height >= platform.y) {
-                isOnPlatform = true;
-                player.dy = 0;
-                player.y = platform.y - player.height;
+            isOnPlatform = true;
+            player.dy = 0;
+            player.y = platform.y - player.height;
         }
     });
 
@@ -309,10 +305,10 @@ function updatePlayer() {
             player.x + player.width > ladder.x &&
             player.y + player.height > ladder.y &&
             player.y < ladder.y + ladder.height) {
-                player.isOnLadder = true;
-                if (player.dy !== 0) {
-                    player.isOnGround = true; // Allow the player to stand on the ladder
-                }
+            player.isOnLadder = true;
+            if (player.dy !== 0) {
+                player.isOnGround = true; // Allow the player to stand on the ladder
+            }
         }
     });
 
@@ -530,6 +526,31 @@ document.addEventListener('keyup', (e) => {
     if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'ArrowDown' || e.key === 's') stopVertical();
 });
 
-loop();
+// Add touch controls for mobile
+canvas.addEventListener('touchstart', handleTouchStart);
+canvas.addEventListener('touchend', handleTouchEnd);
 
+function handleTouchStart(e) {
+    const touchX = e.touches[0].clientX;
+    const touchY = e.touches[0].clientY;
+
+    if (touchX < canvasWidth / 2 && touchY > canvasHeight / 2) {
+        moveLeft();
+    } else if (touchX > canvasWidth / 2 && touchY > canvasHeight / 2) {
+        moveRight();
+    } else if (touchY < canvasHeight / 2) {
+        if (player.isOnLadder) {
+            moveUp();
+        } else {
+            jump();
+        }
+    }
+}
+
+function handleTouchEnd(e) {
+    stopHorizontal();
+    stopVertical();
+}
+
+loop();
 
